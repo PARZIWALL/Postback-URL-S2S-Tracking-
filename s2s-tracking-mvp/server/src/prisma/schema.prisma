@@ -1,0 +1,48 @@
+// Prisma schema for NeonDB PostgreSQL
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Affiliate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  clicks    Click[]
+}
+
+model Campaign {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  clicks    Click[]
+}
+
+model Click {
+  id           Int       @id @default(autoincrement())
+  affiliate    Affiliate @relation(fields: [affiliateId], references: [id])
+  affiliateId  Int
+  campaign     Campaign  @relation(fields: [campaignId], references: [id])
+  campaignId   Int
+  clickId      String
+  createdAt    DateTime  @default(now())
+  conversions  Conversion[]
+
+  @@unique([affiliateId, campaignId, clickId])
+  @@index([clickId, affiliateId])
+}
+
+model Conversion {
+  id        Int      @id @default(autoincrement())
+  click     Click    @relation(fields: [clickId], references: [id])
+  clickId   Int
+  amount    Float
+  currency  String
+  createdAt DateTime @default(now())
+
+  @@index([clickId])
+}
